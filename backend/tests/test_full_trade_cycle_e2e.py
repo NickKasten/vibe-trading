@@ -94,8 +94,8 @@ class TestFullTradeCycleE2E:
         # Run first cycle - BUY
         run_trading_cycle('AAPL')
 
-        # Verify BUY was executed
-        mock_execute_trade.assert_called_once_with(13, symbol='AAPL', side='buy', simulate=True)
+        # Verify BUY was executed (with current_price parameter from Agent 2 fix)
+        mock_execute_trade.assert_called_once_with(13, symbol='AAPL', side='buy', simulate=True, current_price=151.0)
         mock_update_positions.assert_called_once()
         buy_position_args = mock_update_positions.call_args[0][0]
         assert buy_position_args['symbol'] == 'AAPL'
@@ -168,8 +168,9 @@ class TestFullTradeCycleE2E:
         # Run second cycle - SELL
         run_trading_cycle('AAPL')
 
-        # Verify SELL was executed
-        mock_execute_trade.assert_called_once_with(13, symbol='AAPL', side='sell', simulate=True)
+        # Verify SELL was executed (with current_price parameter from Agent 2 fix)
+        # Price is 163.0 (latest close from mock data)
+        mock_execute_trade.assert_called_once_with(13, symbol='AAPL', side='sell', simulate=True, current_price=163.0)
 
         # CRITICAL VERIFICATION: delete_position should be called
         db_instance.delete_position.assert_called_once_with('AAPL')

@@ -37,3 +37,6 @@ tenacity
 
 # Yahoo Finance fallback
 yfinance
+
+# Alpaca SDK for intraday data
+alpaca-py>=0.8.0

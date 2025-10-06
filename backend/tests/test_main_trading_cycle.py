@@ -90,7 +90,7 @@ class TestTradingCycle:
         mock_fetch_ohlcv.assert_called_once_with('AAPL')
         mock_generate_signals.assert_called_once()
         mock_calculate_position_size.assert_called_once()
-        mock_execute_trade.assert_called_once_with(10, symbol='AAPL', side='buy', simulate=True)
+        mock_execute_trade.assert_called_once_with(10, symbol='AAPL', side='buy', simulate=True, current_price=104.0)
         mock_update_trades.assert_called_once()
         mock_update_positions.assert_called_once()
         mock_update_equity.assert_called_once()

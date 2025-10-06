@@ -147,10 +147,10 @@ def run_trading_cycle(symbol: str = "AAPL"):
                     return
         
         # Execute trade based on analysis
-        logger.info(f"🎯 Executing trade for {symbol}: {side.upper()} {position_size} shares")
+        logger.info(f"🎯 Executing trade for {symbol}: {side.upper()} {position_size} shares at ${current_price:.2f}")
         trading_mode = os.getenv("TRADING_MODE", "simulate")
         simulate = (trading_mode == "simulate")
-        trade_result = execute_trade(position_size, symbol=symbol, side=side, simulate=simulate)
+        trade_result = execute_trade(position_size, symbol=symbol, side=side, simulate=simulate, current_price=float(current_price))
         if not trade_result:
             error_msg = "Failed to execute trade"
             logger.error(error_msg)

@@ -22,9 +22,14 @@ _trade_log = []
 
 def simulate_fill_price(symbol: str) -> float:
     """
-    Simulate a fill price for the given symbol.
-    For now, returns a random price between 100 and 110.
+    DEPRECATED: Returns a random fill price for the given symbol.
+
+    This function should not be used for new code. Instead, pass the actual
+    current_price parameter to execute_trade() to ensure realistic pricing.
+
+    For backward compatibility, returns a random price between 100 and 110.
     """
+    logger.warning(f"DEPRECATED: simulate_fill_price() called for {symbol}. Use current_price parameter instead.")
     return round(random.uniform(100, 110), 2)
 
 def record_trade(trade: Dict):
@@ -78,10 +83,18 @@ def validate_api_credentials() -> Tuple[bool, str]:
         return False, "Missing API credentials"
     return True, ""
 
-def execute_trade(position_size: int, symbol: str = "AAPL", side: str = "buy", simulate: bool = True) -> Optional[Dict]:
+def execute_trade(position_size: int, symbol: str = "AAPL", side: str = "buy", simulate: bool = True, current_price: Optional[float] = None) -> Optional[Dict]:
     """
     Place a simulated order using the Alpaca paper API or simulate locally.
     Includes comprehensive validation and error handling.
+
+    Args:
+        position_size: Number of shares to trade
+        symbol: Stock symbol (e.g., "AAPL")
+        side: "buy" or "sell"
+        simulate: If True, simulates locally; if False, uses Alpaca API
+        current_price: Current market price (optional). If not provided in simulate mode,
+                      falls back to simulate_fill_price(). Required for accurate simulation.
     """
     # Validate API credentials
     is_valid, error_msg = validate_api_credentials()
@@ -96,8 +109,18 @@ def execute_trade(position_size: int, symbol: str = "AAPL", side: str = "buy", s
         raise OrderValidationError(error_msg)
 
     if simulate:
-        # Simulate order execution
-        fill_price = simulate_fill_price(symbol)
+        # Validate current_price if provided
+        if current_price is not None:
+            if current_price <= 0 or current_price > 10000:
+                logger.warning(f"Invalid current_price {current_price} for {symbol}. Must be between 0 and 10000.")
+                raise OrderValidationError(f"Invalid current_price: {current_price}")
+            fill_price = current_price
+            logger.info(f"Using real market price for simulation: ${fill_price:.2f}")
+        else:
+            # Fallback to random price (deprecated behavior)
+            fill_price = simulate_fill_price(symbol)
+            logger.warning(f"No current_price provided for {symbol}. Using fallback price: ${fill_price:.2f}")
+
         trade = {
             'symbol': symbol,
             'side': side,

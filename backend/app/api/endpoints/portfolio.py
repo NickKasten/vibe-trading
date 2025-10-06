@@ -45,13 +45,13 @@ async def get_portfolio(request: Request, authenticated: bool = Depends(verify_a
         for pos in raw_positions:
             quantity = float(pos.get("quantity", 0))
             current_price = float(pos.get("current_price", 0))
-            avg_price = float(pos.get("average_entry_price", 0))
+            average_entry_price = float(pos.get("average_entry_price", 0))
             unrealized_pnl = float(pos.get("unrealized_pnl", 0))
-            
+
             transformed_position = {
                 "symbol": pos.get("symbol", ""),
                 "quantity": quantity,
-                "avg_price": avg_price,
+                "average_entry_price": average_entry_price,
                 "current_price": current_price,
                 "market_value": quantity * current_price,
                 "unrealized_pl": unrealized_pnl,

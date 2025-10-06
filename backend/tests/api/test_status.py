@@ -34,7 +34,10 @@ def test_get_status_database_unhealthy(client, mock_supabase, valid_api_key):
 
     response = client.get("/api/status", headers={"X-API-Key": valid_api_key})
 
-    assert response.status_code == 500
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"]["database"] == "unhealthy"
+    assert data["status"]["api"] == "healthy"
 
 
 def test_get_status_invalid_api_key(client, monkeypatch):

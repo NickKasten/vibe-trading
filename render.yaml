@@ -32,6 +32,8 @@ services:
         value: "api"
       - key: API_KEY
         sync: false
+      - key: TRADING_MODE
+        value: "paper"
 
   # Trading Bot Background Worker
   - type: worker
@@ -68,3 +70,5 @@ services:
         value: "300"
       - key: API_KEY
         sync: false
+      - key: TRADING_MODE
+        value: "paper"

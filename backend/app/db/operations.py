@@ -64,6 +64,17 @@ class DatabaseOperations:
         result = self.client.table('positions').select('*').execute()
         return [Position(**pos) for pos in result.data]
 
+    def delete_position(self, symbol: str) -> bool:
+        """Delete a position by symbol."""
+        try:
+            self.client.table('positions').delete().eq('symbol', symbol).execute()
+            return True
+        except Exception as e:
+            # Log error but don't fail the trading cycle
+            import logging
+            logging.getLogger(__name__).error(f"Failed to delete position for {symbol}: {e}")
+            return False
+
     def record_equity(self, equity: Equity) -> Equity:
         """Record equity curve data point with upsert on timestamp."""
         data = to_serializable(equity.model_dump(exclude={'id'}))

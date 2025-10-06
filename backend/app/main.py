@@ -148,7 +148,9 @@ def run_trading_cycle(symbol: str = "AAPL"):
         
         # Execute trade based on analysis
         logger.info(f"🎯 Executing trade for {symbol}: {side.upper()} {position_size} shares")
-        trade_result = execute_trade(position_size, symbol=symbol, side=side, simulate=True)
+        trading_mode = os.getenv("TRADING_MODE", "simulate")
+        simulate = (trading_mode == "simulate")
+        trade_result = execute_trade(position_size, symbol=symbol, side=side, simulate=simulate)
         if not trade_result:
             error_msg = "Failed to execute trade"
             logger.error(error_msg)
@@ -209,8 +211,11 @@ def run_trading_cycle(symbol: str = "AAPL"):
                     logger.info(f"Reduced position to {remaining_shares} shares @ ${existing_position.average_entry_price:.2f} avg")
                 else:
                     # Complete sale - remove position
-                    # TODO: Implement position deletion logic
-                    logger.info(f"Position closed completely by selling {trade_result['quantity']} shares")
+                    deleted = db_ops.delete_position(trade_result['symbol'])
+                    if deleted:
+                        logger.info(f"Position closed completely by selling {trade_result['quantity']} shares - removed from database")
+                    else:
+                        logger.warning(f"Position closed but failed to delete from database for {trade_result['symbol']}")
         
         # CALCULATE EQUITY CORRECTLY
         # Get current cash from previous equity record

@@ -155,7 +155,7 @@ export default function PortfolioSummary() {
                         {position.quantity}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatCurrency(position.avg_price || 0)}
+                        {formatCurrency(position.average_entry_price || 0)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatCurrency(position.current_price || 0)}

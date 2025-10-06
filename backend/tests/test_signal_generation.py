@@ -31,7 +31,7 @@ class TestSignalGeneration:
         }, index=dates)
         
         # Add upward trend for last 20 days to trigger buy signal
-        data.iloc[-20:]['close'] = np.linspace(100, 110, 20)
+        data.loc[data.index[-20:], 'close'] = np.linspace(100, 110, 20)
         
         result = generate_signals(data)
         

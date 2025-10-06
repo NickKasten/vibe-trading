@@ -200,7 +200,7 @@ def sample_position_data():
     return {
         'symbol': 'AAPL',
         'quantity': 10,
-        'entry_price': 102.0,
+        'average_entry_price': 102.0,
         'current_price': 102.0,
         'unrealized_pnl': 0.0,
         'timestamp': datetime.now(timezone.utc).isoformat()

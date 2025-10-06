@@ -233,7 +233,7 @@ export default function PerformanceChart() {
           )}
         </div>
 
-        <div className="mt-4 text-xs text-gray-400">
+        <div className="mt-4 text-xs text-gray-400 text-center">
           Data delayed {performance?.data_delay_minutes ?? 15} minutes
           {performance?.benchmark_metrics ? ' • Benchmark normalized to starting equity' : ''}
         </div>

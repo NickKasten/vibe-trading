@@ -8,18 +8,31 @@ def test_get_portfolio_success(client, mock_supabase, sample_portfolio_data, val
     # Mock positions response
     mock_positions_response = MagicMock()
     mock_positions_response.data = sample_portfolio_data["positions"]
-    
+
     # Mock equity response
     mock_equity_response = MagicMock()
     mock_equity_response.data = sample_portfolio_data["equity"]
-    
-    # Setup complex mock chain for positions
-    mock_supabase.return_value.table.return_value.select.return_value.execute.return_value = mock_positions_response
-    
-    # Setup complex mock chain for equity (different call pattern)
-    equity_chain = mock_supabase.return_value.table.return_value.select.return_value.order.return_value.limit
-    equity_chain.return_value.execute.return_value = mock_equity_response
-    
+
+    # Setup separate mocks for positions table and equity table
+    def table_side_effect(table_name):
+        mock_table = MagicMock()
+        mock_select = MagicMock()
+
+        if table_name == "positions":
+            mock_select.execute.return_value = mock_positions_response
+            mock_table.select.return_value = mock_select
+        elif table_name == "equity":
+            mock_order = MagicMock()
+            mock_limit = MagicMock()
+            mock_limit.execute.return_value = mock_equity_response
+            mock_order.limit.return_value = mock_limit
+            mock_select.order.return_value = mock_order
+            mock_table.select.return_value = mock_select
+
+        return mock_table
+
+    mock_supabase.return_value.table.side_effect = table_side_effect
+
     response = client.get("/api/portfolio", headers={"X-API-Key": valid_api_key})
     
     assert response.status_code == 200
@@ -32,6 +45,7 @@ def test_get_portfolio_success(client, mock_supabase, sample_portfolio_data, val
     assert "disclaimer" in data
     assert len(data["positions"]) == 1
     assert data["positions"][0]["symbol"] == "AAPL"
+    assert "average_entry_price" in data["positions"][0]
 
 def test_get_portfolio_no_data(client, mock_supabase, valid_api_key):
     """Test portfolio retrieval with no data."""

@@ -86,7 +86,7 @@ def run_trading_cycle(symbol: str = "AAPL"):
             logger.info("No signals generated from intraday analysis")
             return
 
-        # Store signals to database
+        # Store signals to database with technical indicators
         current_price = float(data['close'].iloc[-1]) if not data.empty else 100.0
         signal_data = {
             'symbol': symbol,
@@ -95,12 +95,22 @@ def run_trading_cycle(symbol: str = "AAPL"):
             'strategy': 'SMA_RSI',
             'price': current_price
         }
-        
+
+        # Add technical indicators if available in the signal data
+        if 'data' in signals and not signals['data'].empty:
+            latest_data = signals['data'].iloc[-1]
+            if 'SMA20' in latest_data.index and not pd.isna(latest_data['SMA20']):
+                signal_data['sma_20'] = float(latest_data['SMA20'])
+            if 'SMA50' in latest_data.index and not pd.isna(latest_data['SMA50']):
+                signal_data['sma_50'] = float(latest_data['SMA50'])
+            if 'RSI' in latest_data.index and not pd.isna(latest_data['RSI']):
+                signal_data['rsi'] = float(latest_data['RSI'])
+
         # Log signal details for debugging
         logger.info(f"📈 Analysis result: {signals.get('side').upper()} signal with strength {signals.get('strength'):.3f}")
         if signals.get('used_fallback'):
             logger.info("Used fallback strategy due to insufficient data")
-        
+
         update_signals(signal_data)
 
         # Calculate position size based on risk

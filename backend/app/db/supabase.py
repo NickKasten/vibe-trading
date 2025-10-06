@@ -244,7 +244,21 @@ def validate_signal_data(signal_data: Dict) -> bool:
     Validate signal data before writing to database.
     """
     required_fields = ['symbol', 'signal_type', 'strength', 'strategy', 'price']
-    return all(field in signal_data for field in required_fields)
+    if not all(field in signal_data for field in required_fields):
+        return False
+
+    # Validate optional technical indicator fields if present
+    if 'rsi' in signal_data and signal_data['rsi'] is not None:
+        try:
+            rsi = float(signal_data['rsi'])
+            if not (0 <= rsi <= 100):
+                logger.warning(f"RSI value {rsi} out of valid range [0, 100]")
+                return False
+        except (ValueError, TypeError):
+            logger.warning(f"Invalid RSI value: {signal_data['rsi']}")
+            return False
+
+    return True
 
 def update_signals(signal_data: Dict) -> bool:
     """
